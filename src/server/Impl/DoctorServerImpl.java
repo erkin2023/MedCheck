@@ -5,6 +5,7 @@ import model.Doctor;
 import model.Hospital;
 import server.IDoctor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DoctorServerImpl implements IDoctor {
@@ -20,7 +21,7 @@ public class DoctorServerImpl implements IDoctor {
     }
 
     @Override
-    public String assignDoctorToDepartment(Long departmentId, List<Long> doctorsId) {
+    public String assignDoctorToDepartment(Long departmentId,List<Long> doctorsId) {
         return doctorDao.assignDoctorToDepartment(departmentId,doctorsId);
     }
 

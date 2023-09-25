@@ -1,17 +1,18 @@
 import Dao.Impl.DepartmentDaoImpl;
+import Dao.Impl.DoctorDaoImpl;
 import Dao.Impl.HospitalDaoImpl;
+import Dao.Impl.PatientDaoImpl;
 import DateBase.DateBase;
-import com.sun.security.jgss.GSSUtil;
 import model.Department;
 import model.Doctor;
 import model.Hospital;
 import model.Patient;
-
 import java.util.*;
-
 import Enum.Gender;
 import server.Impl.DepartmentServerImpl;
+import server.Impl.DoctorServerImpl;
 import server.Impl.HospitalServiceImpl;
+import server.Impl.PatientServerImpl;
 
 public class Main {
     public static void main(String[] args) {
@@ -27,7 +28,7 @@ public class Main {
         patients.add(patient2);
         List<Patient>patients2 = new LinkedList<>();
         Patient patient3 = new Patient(3L,"alina","avv",21, Gender.FEMALE);
-        Patient patient4 = new Patient(3L,"tunuk","abb",22, Gender.FEMALE);
+        Patient patient4 = new Patient(4L,"tunuk","abb",22, Gender.FEMALE);
         patients2.add(patient3);
         patients2.add(patient4);
 
@@ -60,34 +61,44 @@ public class Main {
         hospitals.add(hospital2);
 
         //DATE_BASE
-        DateBase dateBase = new DateBase(hospitals);
+        DateBase dateBase = new DateBase(hospitals,doctors);
 
         //DAO METHODS
         HospitalDaoImpl hospitalDao = new HospitalDaoImpl(dateBase);
         DepartmentDaoImpl departmentDao = new DepartmentDaoImpl(dateBase);
+        DoctorDaoImpl doctorDao = new DoctorDaoImpl(dateBase);
+        PatientDaoImpl patientDao = new PatientDaoImpl(dateBase);
 
         //Service METHODS
         HospitalServiceImpl hospitalService = new HospitalServiceImpl(hospitalDao);
         DepartmentServerImpl departmentServer = new DepartmentServerImpl(departmentDao);
+        DoctorServerImpl doctorServer =new DoctorServerImpl(doctorDao);
+        PatientServerImpl patientServer = new PatientServerImpl(patientDao);
 
 
 
         while (true) {
-            while (true) {
                 System.out.println("Choose an action:");
-                System.out.println("1. Add a hospital                                    7. Get All Department By Hospital");
-                System.out.println("2. Find a hospital by ID");
-                System.out.println("3. Get a list of all hospitals");
-                System.out.println("4. Get a list of patients from a hospital by ID");
-                System.out.println("5. Delete a hospital by ID");
-                System.out.println("6. Get hospitals by address");
-                System.out.println("0. Exit");
+            System.out.println("Hospital                                         Doctor" +
+                    "\n1. Add a hospital                                9.  Find Doctor By Id" +
+                    "\n2. Find a hospital by ID                         10. Assign Doctor To Department" +
+                    "\n3. Get a list of all hospitals                   11. Get All Doctors By Hospital Id" +
+                    "\n4. Get a list of patients from a hospital by ID  12. Get All Doctors By Department Id" +
+                    "\n5. Delete a hospital by ID" +
+                    "\n6. Get hospitals by address" +
+                    "\n" +
+                    "\nDepartment                                       Patient" +
+                    "\n                                                 13. Add Patients To Hospital" +
+                    "\n                                                 14. Get Patient By Id " +
+                    "\n7. Get All Department By Hospital                15. Get Patient By Age " +
+                    "\n8. Find Department By Name                       16. Sort Patients ByAge");
 
                 int choice = scanner.nextInt();
                 scanner.nextLine();
 
                 switch (choice) {
                     case 1:
+                        // Hospital methods
                         System.out.println();
                         System.out.println("write the hospital id from 1 to 2 already exists ");
                         long id = scanner.nextLong();
@@ -103,55 +114,116 @@ public class Main {
                     case 2:
                         System.out.println("Введите ID госпиталя для поиска:");
                         long hospitalId = scanner.nextLong();
-                        scanner.nextLine(); // Consume the newline character.
-                        Hospital foundHospital = hospitalDao.findHospitalById(hospitalId);
-                        if (foundHospital != null) {
-                            System.out.println("Найден госпиталь: " + foundHospital);
-                        } else {
-                            System.out.println("Госпиталь не найден.");
-                        }
-                        break;
-
+                        scanner.nextLine();
+                        hospitalService.findHospitalById(hospitalId);
                     case 3:
-                        // Получить список всех госпиталей и вывести на экран.
-                        System.out.println(hospitalDao.getAllHospital());
+                        System.out.println(hospitalService.getAllHospital());
                         break;
 
                     case 4:
-                        // Получить список пациентов из госпиталя по ID и вывести на экран.
                         System.out.println("write the hospital id to receive patients ");
                         id = scanner.nextLong();
-                        System.out.println(hospitalDao.getAllPatientFromHospital(id));
+                        System.out.println(hospitalService.getAllPatientFromHospital(id));
                         break;
 
                     case 5:
                         System.out.println("Введите ID госпиталя для удаления:");
                         long deleteId = scanner.nextLong();
-                        scanner.nextLine(); // Consume the newline character.
-                        String deleteResult = hospitalDao.deleteHospitalById(deleteId);
+                        scanner.nextLine();
+                        String deleteResult = hospitalService.deleteHospitalById(deleteId);
                         System.out.println(deleteResult);
                         break;
 
                     case 6:
                         System.out.println("Введите адрес для поиска госпиталей:");
                         String searchAddress = scanner.nextLine();
-                        System.out.println(hospitalDao.getAllHospitalByAddress(searchAddress));
-
+                        System.out.println(hospitalService.getAllHospitalByAddress(searchAddress));
+                        break;
                     case 7:
-                        // DEPARTMENT
+                        // DEPARTMENT methods
                         System.out.println("Enter the hospital id to get the department");
                         id= scanner.nextLong();
-                        departmentServer.getAllDepartmentByHospital(id);
+                        System.out.println(departmentServer.getAllDepartmentByHospital(id));
+                        scanner.nextLine();
+                        break;
+                    case 8:
+                        System.out.println("Enter the name of the department to output it");
+                        String departmentName= scanner.nextLine();
+                        System.out.println(departmentServer.findDepartmentByName(departmentName));
+                        break;
+                    case 9:
+                        //Doctor methods
+                        System.out.println("Enter to search for a doctor by ID");
+                        long doctorId = scanner.nextLong();
+                        System.out.println(doctorServer.findDoctorById(doctorId));
+                        break;
+                    case 10:
+                        System.out.println("Enter the department id");
+                        long departmentId = scanner.nextLong();
+                        List<Long>doctorID =new LinkedList<>(List.of(1L,2L,3L,4L));
+                        System.out.println(doctorServer.assignDoctorToDepartment(departmentId, doctorID));
+                        break;
+                    case 11:
+                        System.out.println("Enter the hospital id to find doctors");
+                        hospitalId=scanner.nextLong();
+                        System.out.println(doctorServer.getAllDoctorsByHospitalId(hospitalId));
+                        break;
+                    case 12:
+                        System.out.println("Enter the department id");
+                        departmentId= scanner.nextLong();
+                        System.out.println(doctorServer.getAllDoctorsByDepartmentId(departmentId));
+                        break;
+                    case 13:
+                        // Patient methods
+                        System.out.println("Enter the hospital Id");
+                        hospitalId= scanner.nextLong();
+                        System.out.println("Enter the patient ID, ID 1-4 already exists");
+                        long patientId = scanner.nextLong();
+                        scanner.nextLine();
+                        System.out.println("Enter the patient's firstName ");
+                        String patientName = scanner.nextLine();
+                        System.out.println("Enter the patient's lastName ");
+                        String patientName1 = scanner.nextLine();
+                        System.out.println("Enter the patient's age");
+                        int agePatient = scanner.nextInt();
+                        System.out.println("Write your gender: ");
+                        System.out.println(" Male : ");
+                        System.out.println(" Female : ");
+                        String genderSInput = scanner.next();
+                        Gender gens = Gender.fromString(genderSInput);
+                        if (gens != null) {
+                            Patient newPatient = new Patient(patientId,patientName,patientName1,agePatient,gens);
+                            System.out.println(newPatient);
+                            List<Patient>newPatients = new LinkedList<>();
+                            newPatients.add(newPatient);
+                            patientServer.addPatientsToHospital(hospitalId,newPatients);
+                        } else {
+                            System.out.println("Invalid gender input.");
+                        }
+                        break;
+                    case 14:
+                        System.out.println("Enter the Id patient");
+                        patientId = scanner.nextLong();
+                        System.out.println(patientServer.getPatientById(patientId));
+                        break;
+                    case 15:
+                        System.out.println(patientServer.getPatientByAge());
+                        break;
+                    case 16:
+                        System.out.println("enter to get ascending - asc" +
+                                "\nEnter to get descending-desc");
+                        String sort= scanner.nextLine();
+                        System.out.println(patientServer.sortPatientsByAge(sort));
+                        break;
                     case 0:
-                        System.out.println("Выход из программы.");
+                        System.out.println("Exit the program.");
                         System.exit(0);
                         break;
-
                     default:
-                        System.out.println("Некорректный выбор, попробуйте еще раз.");
+                        System.out.println("Incorrect choice, try again.");
                         break;
                 }
             }
         }
     }
-}
+

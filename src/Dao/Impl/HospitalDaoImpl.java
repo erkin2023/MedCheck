@@ -15,73 +15,91 @@ public class HospitalDaoImpl implements IHospital {
         this.dateBase = dateBase;
     }
 
-    @Override
     public String addHospital(Hospital hospital) {
-        List<Hospital>hospitals = new LinkedList<>();
-        hospitals.add(hospital);
-        return "Added Hospital "+ hospitals;
+        try {
+            List<Hospital> hospitals = new LinkedList<>();
+            hospitals.add(hospital);
+            return "Added Hospital " + hospitals;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed to add hospital";
+        }
     }
 
     @Override
     public Hospital findHospitalById(Long id) {
-        List<Hospital>hospitals=dateBase.getHospitals();
-        Optional<Hospital>findHospital=hospitals.stream().filter(h -> h.getId().equals(id)).findFirst();
-        if (findHospital.isPresent()) {
-            return findHospital.get();
-        } else {
+        try {
+            List<Hospital> hospitals = dateBase.getHospitals();
+            Optional<Hospital> findHospital = hospitals.stream().filter(h -> h.getId().equals(id)).findFirst();
+            return findHospital.orElse(null);
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
 
     @Override
     public List<Hospital> getAllHospital() {
-        List<Hospital>hospitals=dateBase.getHospitals();
-        if (!hospitals.isEmpty()) {
-          return  dateBase.getHospitals();
-        }else {
+        try {
+            List<Hospital> hospitals = dateBase.getHospitals();
+            return hospitals.isEmpty() ? new ArrayList<>() : hospitals;
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
 
     @Override
     public List<Patient> getAllPatientFromHospital(Long id) {
-        List<Hospital> hospitals = dateBase.getHospitals();
-        if (!hospitals.isEmpty()){
-            return hospitals.stream()
-                    .filter(h -> h.getId().equals(id))
-                    .flatMap(h -> h.getPatients().stream())
-                    .collect(Collectors.toList());
+        try {
+            List<Hospital> hospitals = dateBase.getHospitals();
+            if (!hospitals.isEmpty()) {
+                return hospitals.stream()
+                        .filter(h -> h.getId().equals(id))
+                        .flatMap(h -> h.getPatients().stream())
+                        .collect(Collectors.toList());
+            }
+            return new ArrayList<>();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         }
-        return new ArrayList<>();
     }
 
     @Override
     public String deleteHospitalById(Long id) {
-        List<Hospital>hospitals=dateBase.getHospitals();
-        if (hospitals.isEmpty()){
-            Iterator<Hospital>iterator = hospitals.iterator();
-            while (iterator.hasNext()){
-                Hospital hospital =iterator.next();
-                if (hospital.getId().equals(id)){
-                    iterator.remove();
-                    return "hospital deleted ";
+        try {
+            List<Hospital> hospitals = dateBase.getHospitals();
+            if (!hospitals.isEmpty()) {
+                Iterator<Hospital> iterator = hospitals.iterator();
+                while (iterator.hasNext()) {
+                    Hospital hospital = iterator.next();
+                    if (hospital.getId().equals(id)) {
+                        iterator.remove();
+                        return "Hospital deleted";
+                    }
                 }
             }
-        } return "Hospital by this ID not founded "+ id;
+            return "Hospital by this ID not found " + id;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed to delete hospital";
+        }
     }
 
     @Override
     public Map<String, Hospital> getAllHospitalByAddress(String address) {
-        List<Hospital> hospitals = dateBase.getHospitals();
-        Map<String, Hospital> hospitalMap = new HashMap<>();
-        for (Hospital h : hospitals) {
-            if (h.getAddress().equals(address)) {
-                hospitalMap.put(address, h);
+        try {
+            List<Hospital> hospitals = dateBase.getHospitals();
+            Map<String, Hospital> hospitalMap = new HashMap<>();
+            for (Hospital h : hospitals) {
+                if (h.getAddress().equals(address)) {
+                    hospitalMap.put(address, h);
+                }
             }
-        }
-        if (!hospitalMap.isEmpty()) {
-            return hospitalMap;
-        } else {
+            return hospitalMap.isEmpty() ? null : hospitalMap;
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
